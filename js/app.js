@@ -10,6 +10,7 @@ var computerWeapon;
 var scores;
 var weapons;
 var stage;
+var beepAudio = new Audio('http://soundbible.com/mp3/Robot_blip-Marianne_Gagnon-120342607.mp3');
 
 /*----- cached element references -----*/
 
@@ -34,8 +35,11 @@ var resetBtn = document.querySelector('footer > button');
 // Using delegation to add the EL of click
 
 weaponBox.addEventListener('click', weaponClick);
+resetBtn.addEventListener('click', initalize);
 
 /*----- functions -----*/
+
+
 function initalize (){
     //gameBoard in the starting state
     scores = {
@@ -63,13 +67,21 @@ function initalize (){
     reDraw();
 }
 
+function resetRoundScores() {
+    scores.round.win = 0;
+    scores.round.draw = 0;
+    scores.round.loss = 0;
+}
+
 function doCountdown(winner) {
     var countRemaining = COUNTDOWN;
+    beepAudio.play();
     resultText.textContent = countRemaining;
     var counter = setInterval(function() {
         countRemaining--;
         if (countRemaining) {
             resultText.textContent = countRemaining;
+            beepAudio.play();
         } else {
             clearInterval(counter);
             if (winner === 't') {
@@ -82,6 +94,13 @@ function doCountdown(winner) {
                 scores.round.loss ++;
                 resultText.textContent = "YOU LOST!";
             }
+            if (scores.round.win === 2) {
+                scores.match.win++;
+                resetRoundScores();
+            } else if (scores.round.loss === 2) {
+                scores.match.loss++;
+                resetRoundScores();
+            } 
         }
         stage = 'results';
     reDraw();
@@ -102,7 +121,7 @@ function weaponClick(e) {
     console.log(computerWeapon);
     var winner = getWinner();
     stage = 'countdown';
-    reDraw();
+    reDraw()
     doCountdown(winner);
 }
 
@@ -119,7 +138,7 @@ function getWinner(){
     }
 }
 
-function reDraw(stage) {
+function reDraw() {
     humanScore.textContent = scores.round.win;
     compScore.textContent = scores.round.loss;
     ties.textContent = scores.round.draw;
